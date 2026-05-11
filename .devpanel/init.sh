@@ -113,6 +113,11 @@ else
   time drush -n updb
 fi
 
+echo
+echo 'Enable DevPanel Marketplace Bar.'
+time drush -n en devpanel_marketplace_bar
+echo
+
 #== Warm up caches.
 echo
 echo 'Run cron.'

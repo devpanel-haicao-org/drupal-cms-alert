@@ -215,11 +215,14 @@ composer config repositories.codemirror '{
         "license": "MIT"
     }
 }'
+composer config repositories.devpanel_marketplace_bar vcs "git@github.com:devpanel-haicao/devpanel_marketplace_bar.git"
+
 # Add Webform libraries and Composer Patches.
 composer require -n --no-update \
     codemirror/codemirror \
     cweagans/composer-patches \
     drupal/ai_provider_litellm \
+    devpanel/devpanel_marketplace_bar:dev-main \
     jquery/inputmask \
     jquery/intl-tel-input \
     jquery/rateit \
