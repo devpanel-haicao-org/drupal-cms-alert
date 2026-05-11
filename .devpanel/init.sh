@@ -17,6 +17,14 @@ echo
 echo Remove root-owned files.
 time sudo rm -rf lost+found
 
+# =================================================================
+# 1. THÊM MỚI: Cấp quyền cho thư mục gốc (Chạy ngay từ đầu)
+# Giúp Web Server và Composer có quyền tạo file/thư mục thoải mái
+# =================================================================
+echo
+echo 'Set permissions for application root.'
+time sudo chmod 777 $APP_ROOT
+
 #== Composer install.
 echo
 if [ -f composer.json ]; then
@@ -32,12 +40,16 @@ else
 fi
 time composer -n update --no-progress
 
-#== Create the private files directory.
+# =================================================================
+# 2. THAY ĐỔI: Create & chmod the private files directory.
+# Gom lệnh mkdir và chmod của bạn vào chung một khối logic
+# =================================================================
+echo
+echo 'Create and set permissions for private files directory.'
 if [ ! -d private ]; then
-  echo
-  echo 'Create the private files directory.'
-  time mkdir private
+  time mkdir -p private
 fi
+time sudo chmod -R 777 private
 
 #== Create the config sync directory.
 if [ ! -d config/sync ]; then
@@ -52,6 +64,32 @@ if [ ! -f .devpanel/salt.txt ]; then
   echo 'Generate hash salt.'
   time openssl rand -hex 32 > .devpanel/salt.txt
 fi
+
+# =================================================================
+# 3. THÊM MỚI: Chuẩn bị quyền files và settings.php TRƯỚC KHI cài đặt
+# =================================================================
+echo
+echo 'Set permissions for Drupal installation (files, settings, assets).'
+
+# A. Đảm bảo thư mục files tồn tại rồi mới chmod 777
+if [ ! -d web/sites/default/files ]; then
+  time mkdir -p web/sites/default/files
+fi
+time sudo chmod -R 777 web/sites/default/files/
+
+# B. Đảm bảo settings.php tồn tại (copy từ file default) rồi mới chmod 666
+if [ ! -f web/sites/default/settings.php ] && [ -f web/sites/default/default.settings.php ]; then
+  time cp web/sites/default/default.settings.php web/sites/default/settings.php
+fi
+if [ -f web/sites/default/settings.php ]; then
+  time sudo chmod 666 web/sites/default/settings.php
+fi
+
+# C. (Bonus) Cấp quyền cho thư mục assets của Drupal CMS Starshot để tránh lỗi cũ
+if [ -d assets ]; then
+  time sudo chmod -R 777 assets/
+fi
+# =================================================================
 
 #== Install Drupal.
 echo
